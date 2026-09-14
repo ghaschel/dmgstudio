@@ -1,0 +1,114 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D10000000000000000000001 /* DmgStudioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* DmgStudioApp.swift */; };
+		D10000000000000000000002 /* DmgStudioCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000002 /* DmgStudioCore.swift */; };
+		D10000000000000000000003 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000003 /* main.swift */; };
+		D10000000000000000000004 /* DmgBackgroundSizingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000004 /* DmgBackgroundSizingTests.swift */; };
+		D10000000000000000000005 /* libDMGStudioCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D20000000000000000000007 /* libDMGStudioCore.a */; };
+		D10000000000000000000006 /* libDMGStudioCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D20000000000000000000007 /* libDMGStudioCore.a */; };
+		D10000000000000000000007 /* libDMGStudioCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D20000000000000000000007 /* libDMGStudioCore.a */; };
+		D10000000000000000000008 /* DmgBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000009 /* DmgBuilder.swift */; };
+		D10000000000000000000009 /* DmgStudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000010 /* DmgStudioView.swift */; };
+		D1000000000000000000000A /* DSStore in Frameworks */ = {isa = PBXBuildFile; productRef = DF00000000000000000000001 /* DSStore */; };
+		D1000000000000000000000B /* DSStore in Frameworks */ = {isa = PBXBuildFile; productRef = DF00000000000000000000002 /* DSStore */; };
+		D1000000000000000000000C /* DSStoreLayoutWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000011 /* DSStoreLayoutWriter.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D30000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = D40000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = D50000000000000000000002; remoteInfo = DMGStudioCore; };
+		D30000000000000000000002 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = D40000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = D50000000000000000000002; remoteInfo = DMGStudioCore; };
+		D30000000000000000000003 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = D40000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = D50000000000000000000002; remoteInfo = DMGStudioCore; };
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		D20000000000000000000001 /* DmgStudioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DmgStudioApp.swift; sourceTree = "<group>"; };
+		D20000000000000000000002 /* DmgStudioCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DmgStudioCore.swift; sourceTree = "<group>"; };
+		D20000000000000000000003 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		D20000000000000000000004 /* DmgBackgroundSizingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DmgBackgroundSizingTests.swift; sourceTree = "<group>"; };
+		D20000000000000000000005 /* DMGStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DMGStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D20000000000000000000006 /* dmgstudio */ = {isa = PBXFileReference; explicitFileType = compiled.mach-o.executable; includeInIndex = 0; path = dmgstudio; sourceTree = BUILT_PRODUCTS_DIR; };
+		D20000000000000000000007 /* libDMGStudioCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDMGStudioCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D20000000000000000000008 /* DMGStudioTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DMGStudioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D20000000000000000000009 /* DmgBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DmgBuilder.swift; sourceTree = "<group>"; };
+		D20000000000000000000010 /* DmgStudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DmgStudioView.swift; sourceTree = "<group>"; };
+		D20000000000000000000011 /* DSStoreLayoutWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSStoreLayoutWriter.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D60000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000005 /* libDMGStudioCore.a in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
+		D60000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000006 /* libDMGStudioCore.a in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
+		D60000000000000000000003 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000007 /* libDMGStudioCore.a in Frameworks */, D1000000000000000000000B /* DSStore in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
+		D60000000000000000000004 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D1000000000000000000000A /* DSStore in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D70000000000000000000001 = {isa = PBXGroup; children = (D70000000000000000000002 /* DMGStudio */, D70000000000000000000003 /* DMGStudioCore */, D70000000000000000000004 /* DMGStudioCLI */, D70000000000000000000005 /* DMGStudioTests */, D70000000000000000000006 /* Products */,); sourceTree = "<group>"; };
+		D70000000000000000000002 /* DMGStudio */ = {isa = PBXGroup; children = (D20000000000000000000001 /* DmgStudioApp.swift */, D20000000000000000000010 /* DmgStudioView.swift */,); path = DMGStudio; sourceTree = "<group>"; };
+		D70000000000000000000003 /* DMGStudioCore */ = {isa = PBXGroup; children = (D20000000000000000000002 /* DmgStudioCore.swift */, D20000000000000000000009 /* DmgBuilder.swift */, D20000000000000000000011 /* DSStoreLayoutWriter.swift */,); path = DMGStudioCore; sourceTree = "<group>"; };
+		D70000000000000000000004 /* DMGStudioCLI */ = {isa = PBXGroup; children = (D20000000000000000000003 /* main.swift */,); path = DMGStudioCLI; sourceTree = "<group>"; };
+		D70000000000000000000005 /* DMGStudioTests */ = {isa = PBXGroup; children = (D20000000000000000000004 /* DmgBackgroundSizingTests.swift */,); path = DMGStudioTests; sourceTree = "<group>"; };
+		D70000000000000000000006 /* Products */ = {isa = PBXGroup; children = (D20000000000000000000005 /* DMGStudio.app */, D20000000000000000000006 /* dmgstudio */, D20000000000000000000007 /* libDMGStudioCore.a */, D20000000000000000000008 /* DMGStudioTests.xctest */,); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D50000000000000000000001 /* DMGStudio */ = {isa = PBXNativeTarget; buildConfigurationList = D80000000000000000000001 /* Build configuration list for PBXNativeTarget "DMGStudio" */; buildPhases = (D90000000000000000000001 /* Sources */, D60000000000000000000001 /* Frameworks */,); buildRules = (); dependencies = (DA00000000000000000000001 /* PBXTargetDependency */,); name = DMGStudio; productName = DMGStudio; productReference = D20000000000000000000005 /* DMGStudio.app */; productType = "com.apple.product-type.application"; };
+		D50000000000000000000002 /* DMGStudioCore */ = {isa = PBXNativeTarget; buildConfigurationList = D80000000000000000000002 /* Build configuration list for PBXNativeTarget "DMGStudioCore" */; buildPhases = (D90000000000000000000002 /* Sources */, D60000000000000000000004 /* Frameworks */,); buildRules = (); dependencies = (); name = DMGStudioCore; packageProductDependencies = (DF00000000000000000000001 /* DSStore */,); productName = DMGStudioCore; productReference = D20000000000000000000007 /* libDMGStudioCore.a */; productType = "com.apple.product-type.library.static"; };
+		D50000000000000000000003 /* DMGStudioCLI */ = {isa = PBXNativeTarget; buildConfigurationList = D80000000000000000000003 /* Build configuration list for PBXNativeTarget "DMGStudioCLI" */; buildPhases = (D90000000000000000000003 /* Sources */, D60000000000000000000002 /* Frameworks */,); buildRules = (); dependencies = (DA00000000000000000000002 /* PBXTargetDependency */,); name = DMGStudioCLI; productName = dmgstudio; productReference = D20000000000000000000006 /* dmgstudio */; productType = "com.apple.product-type.tool"; };
+		D50000000000000000000004 /* DMGStudioTests */ = {isa = PBXNativeTarget; buildConfigurationList = D80000000000000000000004 /* Build configuration list for PBXNativeTarget "DMGStudioTests" */; buildPhases = (D90000000000000000000004 /* Sources */, D60000000000000000000003 /* Frameworks */,); buildRules = (); dependencies = (DA00000000000000000000003 /* PBXTargetDependency */,); name = DMGStudioTests; packageProductDependencies = (DF00000000000000000000002 /* DSStore */,); productName = DMGStudioTests; productReference = D20000000000000000000008 /* DMGStudioTests.xctest */; productType = "com.apple.product-type.bundle.unit-test"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D40000000000000000000001 /* Project object */ = {isa = PBXProject; attributes = { BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; TargetAttributes = { D50000000000000000000001 = { CreatedOnToolsVersion = 26.0; }; D50000000000000000000002 = { CreatedOnToolsVersion = 26.0; }; D50000000000000000000003 = { CreatedOnToolsVersion = 26.0; }; D50000000000000000000004 = { CreatedOnToolsVersion = 26.0; TestTargetID = D50000000000000000000001; }; }; }; buildConfigurationList = D80000000000000000000005 /* Build configuration list for PBXProject "DMGStudio" */; compatibilityVersion = "Xcode 16.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base,); mainGroup = D70000000000000000000001; packageReferences = (DE00000000000000000000001 /* XCRemoteSwiftPackageReference "DSStore" */,); productRefGroup = D70000000000000000000006 /* Products */; projectDirPath = ""; projectRoot = ""; targets = (D50000000000000000000001 /* DMGStudio */, D50000000000000000000002 /* DMGStudioCore */, D50000000000000000000003 /* DMGStudioCLI */, D50000000000000000000004 /* DMGStudioTests */,); };
+/* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DE00000000000000000000001 /* XCRemoteSwiftPackageReference "DSStore" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/sindresorhus/DSStore"; requirement = { kind = revision; revision = e0a551419527f7f5af6e8b545d597aa7ee52b2e6; }; };
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DF00000000000000000000001 /* DSStore */ = {isa = XCSwiftPackageProductDependency; package = DE00000000000000000000001 /* XCRemoteSwiftPackageReference "DSStore" */; productName = DSStore; };
+		DF00000000000000000000002 /* DSStore */ = {isa = XCSwiftPackageProductDependency; package = DE00000000000000000000001 /* XCRemoteSwiftPackageReference "DSStore" */; productName = DSStore; };
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D90000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000001 /* DmgStudioApp.swift in Sources */, D10000000000000000000009 /* DmgStudioView.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		D90000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000002 /* DmgStudioCore.swift in Sources */, D10000000000000000000008 /* DmgBuilder.swift in Sources */, D1000000000000000000000C /* DSStoreLayoutWriter.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		D90000000000000000000003 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000003 /* main.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		D90000000000000000000004 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (D10000000000000000000004 /* DmgBackgroundSizingTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DA00000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = D50000000000000000000002 /* DMGStudioCore */; targetProxy = D30000000000000000000001 /* PBXContainerItemProxy */; };
+		DA00000000000000000000002 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = D50000000000000000000002 /* DMGStudioCore */; targetProxy = D30000000000000000000002 /* PBXContainerItemProxy */; };
+		DA00000000000000000000003 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = D50000000000000000000002 /* DMGStudioCore */; targetProxy = D30000000000000000000003 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		DB00000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CLANG_CXX_LANGUAGE_STANDARD = "gnu++20"; CLANG_ENABLE_MODULES = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_VERSION = 6.0; }; name = Debug; };
+		DB00000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = { CLANG_CXX_LANGUAGE_STANDARD = "gnu++20"; CLANG_ENABLE_MODULES = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
+		DB00000000000000000000003 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = DMGStudio; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.ghaschel.DMGStudio; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = macosx; SWIFT_VERSION = 6.0; }; name = Debug; };
+		DB00000000000000000000004 /* Release */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = DMGStudio; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.ghaschel.DMGStudio; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
+		DB00000000000000000000005 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { DEFINES_MODULE = YES; ENABLE_TESTABILITY = YES; MACH_O_TYPE = staticlib; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_MODULE_NAME = DMGStudioCore; PRODUCT_NAME = DMGStudioCore; SDKROOT = macosx; SWIFT_VERSION = 6.0; }; name = Debug; };
+		DB00000000000000000000006 /* Release */ = {isa = XCBuildConfiguration; buildSettings = { DEFINES_MODULE = YES; MACH_O_TYPE = staticlib; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_MODULE_NAME = DMGStudioCore; PRODUCT_NAME = DMGStudioCore; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
+		DB00000000000000000000007 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; CODE_SIGNING_ALLOWED = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_NAME = dmgstudio; SDKROOT = macosx; SWIFT_VERSION = 6.0; }; name = Debug; };
+		DB00000000000000000000008 /* Release */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; CODE_SIGNING_ALLOWED = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_NAME = dmgstudio; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; }; name = Release; };
+		DB00000000000000000000009 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = ""; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.ghaschel.DMGStudioTests; PRODUCT_MODULE_NAME = DMGStudioTests; PRODUCT_NAME = DMGStudioTests; SDKROOT = macosx; SWIFT_VERSION = 6.0; TEST_HOST = ""; }; name = Debug; };
+		DB0000000000000000000000A /* Release */ = {isa = XCBuildConfiguration; buildSettings = { BUNDLE_LOADER = ""; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.ghaschel.DMGStudioTests; PRODUCT_MODULE_NAME = DMGStudioTests; PRODUCT_NAME = DMGStudioTests; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_VERSION = 6.0; TEST_HOST = ""; }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D80000000000000000000001 /* Build configuration list for PBXNativeTarget "DMGStudio" */ = {isa = XCConfigurationList; buildConfigurations = (DB00000000000000000000003 /* Debug */, DB00000000000000000000004 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D80000000000000000000002 /* Build configuration list for PBXNativeTarget "DMGStudioCore" */ = {isa = XCConfigurationList; buildConfigurations = (DB00000000000000000000005 /* Debug */, DB00000000000000000000006 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D80000000000000000000003 /* Build configuration list for PBXNativeTarget "DMGStudioCLI" */ = {isa = XCConfigurationList; buildConfigurations = (DB00000000000000000000007 /* Debug */, DB00000000000000000000008 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D80000000000000000000004 /* Build configuration list for PBXNativeTarget "DMGStudioTests" */ = {isa = XCConfigurationList; buildConfigurations = (DB00000000000000000000009 /* Debug */, DB0000000000000000000000A /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D80000000000000000000005 /* Build configuration list for PBXProject "DMGStudio" */ = {isa = XCConfigurationList; buildConfigurations = (DB00000000000000000000001 /* Debug */, DB00000000000000000000002 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D40000000000000000000001 /* Project object */;
+}
