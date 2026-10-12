@@ -12,6 +12,7 @@ final class DmgStudioViewModel: ObservableObject {
     @Published var volumeName = ""
     @Published var appHorizontalPosition: CGFloat = 0.28
     @Published var applicationsHorizontalPosition: CGFloat = 0.72
+    @Published var arrowColor: DmgArrowColor = .automatic
     @Published private(set) var isBuilding = false
     @Published private(set) var statusMessage: String?
     @Published var errorMessage: String?
@@ -147,7 +148,8 @@ final class DmgStudioViewModel: ObservableObject {
             volumeName: volumeName,
             screenSize: NSScreen.main?.visibleFrame.size ?? CGSize(width: 1_440, height: 900),
             layout: layout,
-            usesDarkAppearance: usesDarkAppearance
+            usesDarkAppearance: usesDarkAppearance,
+            arrowColor: arrowColor
         )
     }
 
@@ -201,6 +203,12 @@ struct DmgStudioView: View {
                         if viewModel.volumeIconURL != nil {
                             Button("Use App Icon", action: viewModel.clearVolumeIcon)
                         }
+                        Picker("Arrow", selection: $viewModel.arrowColor) {
+                            ForEach(DmgArrowColor.allCases, id: \.self) { color in
+                                Text(color.displayName).tag(color)
+                            }
+                        }
+                        .pickerStyle(.segmented)
                         Text("Backgrounds accept PNG or JPEG. A custom volume icon accepts ICNS or a square PNG of at least 512 × 512 pixels.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -257,6 +265,7 @@ struct DmgStudioView: View {
                 backgroundURL: viewModel.backgroundURL,
                 appHorizontalPosition: viewModel.appHorizontalPosition,
                 applicationsHorizontalPosition: viewModel.applicationsHorizontalPosition,
+                arrowColor: viewModel.arrowColor,
                 usesDarkAppearance: colorScheme == .dark,
                 creatorScreenSize: NSScreen.main?.visibleFrame.size ?? CGSize(width: 1_440, height: 900),
                 moveApp: viewModel.moveApp,
@@ -300,6 +309,7 @@ private struct DmgPreviewCanvas: View {
     let backgroundURL: URL?
     let appHorizontalPosition: CGFloat
     let applicationsHorizontalPosition: CGFloat
+    let arrowColor: DmgArrowColor
     let usesDarkAppearance: Bool
     let creatorScreenSize: CGSize
     let moveApp: (CGFloat) -> Void
@@ -308,13 +318,27 @@ private struct DmgPreviewCanvas: View {
     var body: some View {
         GeometryReader { geometry in
             let canvasSize = resolvedCanvasSize(in: geometry.size)
-            let visualCenterlineY = DmgLayout.visualCenterlineY(in: canvasSize)
-            let arrowCenterY = DmgLayout.canvasCenterY(in: canvasSize)
+            let layout = try? DmgLayout(
+                appHorizontalPosition: appHorizontalPosition,
+                applicationsHorizontalPosition: applicationsHorizontalPosition
+            ).finderLayout(canvasSize: canvasSize)
+            let backgroundImage = self.backgroundImage
+            let artworkStyle = layout.map {
+                resolvedArtworkStyle(for: $0, canvasSize: canvasSize, backgroundImage: backgroundImage)
+            }
+            let visualCenterlineY = layout?.appPosition.y ?? DmgLayout.visualCenterlineY(in: canvasSize)
+            let arrowCenterY = layout?.arrowPosition.y ?? DmgLayout.canvasCenterY(in: canvasSize)
             ZStack {
-                canvasBackground
+                canvasBackground(backgroundImage)
+                ForEach(Array((artworkStyle?.labelBackdrops ?? []).enumerated()), id: \.offset) { _, frame in
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white.opacity(DmgArtworkStyle.labelBackdropOpacity))
+                        .frame(width: frame.width, height: frame.height)
+                        .position(x: frame.midX, y: frame.midY)
+                }
                 Image(systemName: "arrow.right")
                     .font(.system(size: max(26, canvasSize.width * 0.08), weight: .medium))
-                    .foregroundStyle((usesDarkAppearance ? Color.white : Color.black).opacity(0.58))
+                    .foregroundStyle((artworkStyle?.arrowColor == .dark ? Color.black : Color.white).opacity(0.58))
                     .position(x: canvasSize.width / 2, y: arrowCenterY)
 
                 PreviewIcon(
@@ -345,8 +369,8 @@ private struct DmgPreviewCanvas: View {
     }
 
     @ViewBuilder
-    private var canvasBackground: some View {
-        if let backgroundURL, let image = NSImage(contentsOf: backgroundURL) {
+    private func canvasBackground(_ image: NSImage?) -> some View {
+        if let image {
             Image(nsImage: image)
                 .resizable()
                 .scaledToFill()
@@ -354,6 +378,50 @@ private struct DmgPreviewCanvas: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(usesDarkAppearance ? Color(white: 0.16) : Color(white: 0.96))
         }
+    }
+
+    private var backgroundImage: NSImage? {
+        backgroundURL.flatMap(NSImage.init(contentsOf:))
+    }
+
+    private func resolvedArtworkStyle(
+        for layout: DmgFinderLayout,
+        canvasSize: CGSize,
+        backgroundImage: NSImage?
+    ) -> DmgArtworkStyle {
+        let fallbackLuminance: CGFloat = usesDarkAppearance ? 0.16 : 0.96
+        guard let backgroundImage,
+              let image = backgroundImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return DmgArtworkStyle.resolve(
+                arrowColor: arrowColor,
+                layout: layout,
+                luminanceAt: { _ in fallbackLuminance }
+            )
+        }
+
+        let bitmap = NSBitmapImageRep(cgImage: image)
+        let scaleX = CGFloat(bitmap.pixelsWide) / canvasSize.width
+        let scaleY = CGFloat(bitmap.pixelsHigh) / canvasSize.height
+        return DmgArtworkStyle.resolve(
+            arrowColor: arrowColor,
+            layout: layout,
+            luminanceAt: { point in
+                let x = min(max(Int(point.x * scaleX), 0), bitmap.pixelsWide - 1)
+                let y = min(max(Int(CGFloat(bitmap.pixelsHigh) - point.y * scaleY), 0), bitmap.pixelsHigh - 1)
+                guard let color = bitmap.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB) else {
+                    return fallbackLuminance
+                }
+                return relativeLuminance(red: color.redComponent, green: color.greenComponent, blue: color.blueComponent)
+            }
+        )
+    }
+
+    private func relativeLuminance(red: CGFloat, green: CGFloat, blue: CGFloat) -> CGFloat {
+        0.2126 * linearized(red) + 0.7152 * linearized(green) + 0.0722 * linearized(blue)
+    }
+
+    private func linearized(_ component: CGFloat) -> CGFloat {
+        component <= 0.04045 ? component / 12.92 : pow((component + 0.055) / 1.055, 2.4)
     }
 
     private func resolvedCanvasSize(in availableSize: CGSize) -> CGSize {
@@ -379,7 +447,7 @@ private struct DmgPreviewCanvas: View {
 }
 
 private struct PreviewIcon: View {
-    static let iconCenterOffset: CGFloat = 12
+    static let iconCenterOffset: CGFloat = 11
 
     let image: NSImage?
     let title: String
@@ -389,15 +457,14 @@ private struct PreviewIcon: View {
             Image(nsImage: image ?? NSImage())
                 .resizable()
                 .interpolation(.high)
-                .frame(width: 78, height: 78)
+                .frame(width: DmgArtworkStyle.finderIconSize, height: DmgArtworkStyle.finderIconSize)
             Text(title)
-                .font(.caption.weight(.medium))
+                .font(.system(size: 12))
+                .foregroundStyle(.black)
                 .lineLimit(1)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
-                .background(.regularMaterial, in: Capsule())
+                .frame(width: DmgArtworkStyle.labelBackdropSize.width)
         }
-        .frame(width: 128)
+        .frame(width: DmgArtworkStyle.labelBackdropSize.width)
         .contentShape(Rectangle())
     }
 }

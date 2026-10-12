@@ -75,6 +75,61 @@ public struct DmgFinderLayout: Equatable, Sendable {
     public let arrowPosition: CGPoint
 }
 
+public enum DmgArrowColor: String, CaseIterable, Equatable, Sendable {
+    case automatic = "auto"
+    case light
+    case dark
+
+    public var displayName: String {
+        switch self {
+        case .automatic: "Auto"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
+}
+
+/// Resolves the shared visual treatment used by the generated Finder artwork
+/// and the SwiftUI preview. Finder owns the label text color, so a light
+/// backing is added only where its native dark text would lack contrast.
+public struct DmgArtworkStyle: Equatable, Sendable {
+    public static let finderIconSize: CGFloat = 96
+    public static let labelBackdropSize = CGSize(width: 168, height: 24)
+    public static let labelBackdropOpacity: CGFloat = 0.86
+
+    public let arrowColor: DmgArrowColor
+    public let labelBackdrops: [CGRect]
+
+    public static func resolve(
+        arrowColor: DmgArrowColor,
+        layout: DmgFinderLayout,
+        luminanceAt: (CGPoint) -> CGFloat
+    ) -> Self {
+        let resolvedArrowColor: DmgArrowColor
+        switch arrowColor {
+        case .automatic:
+            resolvedArrowColor = luminanceAt(layout.arrowPosition) < 0.18 ? .light : .dark
+        case .light, .dark:
+            resolvedArrowColor = arrowColor
+        }
+
+        let labelBackdrops = [layout.appPosition, layout.applicationsPosition]
+            .map(labelBackdropFrame(for:))
+            .filter { luminanceAt(CGPoint(x: $0.midX, y: $0.midY)) < 0.32 }
+
+        return Self(arrowColor: resolvedArrowColor, labelBackdrops: labelBackdrops)
+    }
+
+    public static func labelBackdropFrame(for iconPosition: CGPoint) -> CGRect {
+        CGRect(
+            x: iconPosition.x - labelBackdropSize.width / 2,
+            y: iconPosition.y + finderIconSize / 2 + 1,
+            width: labelBackdropSize.width,
+            height: labelBackdropSize.height
+        )
+    }
+}
+
 public struct DmgBuildPlan: Equatable, Sendable {
     public let appURL: URL
     public let backgroundURL: URL?
@@ -84,6 +139,7 @@ public struct DmgBuildPlan: Equatable, Sendable {
     public let screenSize: CGSize
     public let layout: DmgLayout
     public let usesDarkAppearance: Bool
+    public let arrowColor: DmgArrowColor
 
     public init(
         appURL: URL,
@@ -93,7 +149,8 @@ public struct DmgBuildPlan: Equatable, Sendable {
         volumeName: String,
         screenSize: CGSize,
         layout: DmgLayout = DmgLayout(),
-        usesDarkAppearance: Bool = false
+        usesDarkAppearance: Bool = false,
+        arrowColor: DmgArrowColor = .automatic
     ) {
         self.appURL = appURL
         self.backgroundURL = backgroundURL
@@ -103,6 +160,7 @@ public struct DmgBuildPlan: Equatable, Sendable {
         self.screenSize = screenSize
         self.layout = layout
         self.usesDarkAppearance = usesDarkAppearance
+        self.arrowColor = arrowColor
     }
 
     public static func defaultOutputURL(for appURL: URL) -> URL {
@@ -168,7 +226,14 @@ enum DmgImageValidator {
 }
 
 enum DmgArtworkBuilder {
-    static func render(backgroundURL: URL?, canvasSize: CGSize, usesDarkAppearance: Bool, to outputURL: URL) throws {
+    static func render(
+        backgroundURL: URL?,
+        canvasSize: CGSize,
+        layout: DmgFinderLayout,
+        usesDarkAppearance: Bool,
+        arrowColor: DmgArrowColor,
+        to outputURL: URL
+    ) throws {
         let width = Int(canvasSize.width)
         let height = Int(canvasSize.height)
         guard width > 0, height > 0,
@@ -193,7 +258,15 @@ enum DmgArtworkBuilder {
             context.fill(canvas)
         }
 
-        drawArrow(in: context, canvasSize: canvasSize, isDark: usesDarkAppearance)
+        let fallbackLuminance: CGFloat = usesDarkAppearance ? 0.16 : 0.96
+        let sampler = context.makeImage().map { DmgArtworkLuminanceSampler(image: $0, canvasSize: canvasSize) }
+        let style = DmgArtworkStyle.resolve(
+            arrowColor: arrowColor,
+            layout: layout,
+            luminanceAt: { sampler?.luminance(atFinderPoint: $0) ?? fallbackLuminance }
+        )
+        drawLabelBackdrops(in: context, frames: style.labelBackdrops, canvasSize: canvasSize)
+        drawArrow(in: context, canvasSize: canvasSize, color: style.arrowColor)
         guard let image = context.makeImage(),
               let destination = CGImageDestinationCreateWithURL(outputURL as CFURL, UTType.png.identifier as CFString, 1, nil) else {
             throw DmgBuildError.filesystem("DMGStudio could not write the prepared background image.")
@@ -204,7 +277,21 @@ enum DmgArtworkBuilder {
         }
     }
 
-    private static func drawArrow(in context: CGContext, canvasSize: CGSize, isDark: Bool) {
+    private static func drawLabelBackdrops(in context: CGContext, frames: [CGRect], canvasSize: CGSize) {
+        context.setFillColor(NSColor.white.withAlphaComponent(DmgArtworkStyle.labelBackdropOpacity).cgColor)
+        for frame in frames {
+            let quartzFrame = CGRect(
+                x: frame.minX,
+                y: canvasSize.height - frame.maxY,
+                width: frame.width,
+                height: frame.height
+            )
+            context.addPath(CGPath(roundedRect: quartzFrame, cornerWidth: 8, cornerHeight: 8, transform: nil))
+            context.fillPath()
+        }
+    }
+
+    private static func drawArrow(in context: CGContext, canvasSize: CGSize, color: DmgArrowColor) {
         let center = CGPoint(
             x: canvasSize.width / 2,
             y: DmgLayout.canvasCenterY(in: canvasSize)
@@ -213,9 +300,9 @@ enum DmgArtworkBuilder {
         let arrowHeight = arrowWidth * 0.35
         let startX = center.x - arrowWidth / 2
         let endX = center.x + arrowWidth / 2
-        let color = (isDark ? NSColor.white : NSColor.black).withAlphaComponent(0.58).cgColor
+        let strokeColor = (color == .dark ? NSColor.black : NSColor.white).withAlphaComponent(0.58).cgColor
 
-        context.setStrokeColor(color)
+        context.setStrokeColor(strokeColor)
         context.setLineWidth(max(4, arrowWidth * 0.06))
         context.setLineCap(.round)
         context.move(to: CGPoint(x: startX, y: center.y))
@@ -224,6 +311,33 @@ enum DmgArtworkBuilder {
         context.addLine(to: CGPoint(x: endX, y: center.y))
         context.addLine(to: CGPoint(x: endX - arrowHeight, y: center.y - arrowHeight))
         context.strokePath()
+    }
+}
+
+private struct DmgArtworkLuminanceSampler {
+    private let bitmap: NSBitmapImageRep
+    private let scaleX: CGFloat
+    private let scaleY: CGFloat
+
+    init(image: CGImage, canvasSize: CGSize) {
+        bitmap = NSBitmapImageRep(cgImage: image)
+        scaleX = CGFloat(bitmap.pixelsWide) / canvasSize.width
+        scaleY = CGFloat(bitmap.pixelsHigh) / canvasSize.height
+    }
+
+    func luminance(atFinderPoint point: CGPoint) -> CGFloat {
+        let x = min(max(Int(point.x * scaleX), 0), bitmap.pixelsWide - 1)
+        let y = min(max(Int((CGFloat(bitmap.pixelsHigh) - point.y * scaleY)), 0), bitmap.pixelsHigh - 1)
+        guard let color = bitmap.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB) else { return 0.5 }
+        return relativeLuminance(red: color.redComponent, green: color.greenComponent, blue: color.blueComponent)
+    }
+
+    private func relativeLuminance(red: CGFloat, green: CGFloat, blue: CGFloat) -> CGFloat {
+        0.2126 * linearized(red) + 0.7152 * linearized(green) + 0.0722 * linearized(blue)
+    }
+
+    private func linearized(_ component: CGFloat) -> CGFloat {
+        component <= 0.04045 ? component / 12.92 : pow((component + 0.055) / 1.055, 2.4)
     }
 }
 
@@ -445,7 +559,9 @@ public final class DmgBuilder {
         try DmgArtworkBuilder.render(
             backgroundURL: plan.backgroundURL,
             canvasSize: canvasSize,
+            layout: try plan.layout.finderLayout(canvasSize: canvasSize),
             usesDarkAppearance: plan.usesDarkAppearance,
+            arrowColor: plan.arrowColor,
             to: backgroundDirectory.appendingPathComponent("background.png")
         )
     }
@@ -457,6 +573,7 @@ public struct DmgCommandLineOptions: Equatable, Sendable {
     public let volumeIconURL: URL?
     public let volumeName: String?
     public let outputURL: URL?
+    public let arrowColor: DmgArrowColor
     public let layout: DmgLayout
 
     public func buildPlan(screenSize: CGSize, usesDarkAppearance: Bool) -> DmgBuildPlan {
@@ -471,7 +588,8 @@ public struct DmgCommandLineOptions: Equatable, Sendable {
             volumeName: volumeName ?? appURL.deletingPathExtension().lastPathComponent,
             screenSize: screenSize,
             layout: layout,
-            usesDarkAppearance: usesDarkAppearance
+            usesDarkAppearance: usesDarkAppearance,
+            arrowColor: arrowColor
         )
     }
 }
@@ -485,6 +603,7 @@ public enum DmgCommandLineParser {
         var volumeIconURL: URL?
         var volumeName: String?
         var outputURL: URL?
+        var arrowColor: DmgArrowColor = .automatic
         var appX: CGFloat = 0.28
         var applicationsX: CGFloat = 0.72
         var index = 0
@@ -499,6 +618,11 @@ public enum DmgCommandLineParser {
             case "--volume-icon": volumeIconURL = URL(fileURLWithPath: value)
             case "--volume-name": volumeName = value
             case "--output": outputURL = URL(fileURLWithPath: value)
+            case "--arrow-color":
+                guard let parsedColor = DmgArrowColor(rawValue: value.lowercased()) else {
+                    throw DmgBuildError.commandFailed("--arrow-color must be auto, light, or dark.")
+                }
+                arrowColor = parsedColor
             case "--app-x":
                 guard let parsed = Double(value) else { throw DmgBuildError.commandFailed("--app-x must be a number between 0 and 1.") }
                 appX = CGFloat(parsed)
@@ -518,6 +642,7 @@ public enum DmgCommandLineParser {
             volumeIconURL: volumeIconURL,
             volumeName: volumeName,
             outputURL: outputURL,
+            arrowColor: arrowColor,
             layout: DmgLayout(appHorizontalPosition: appX, applicationsHorizontalPosition: applicationsX)
         )
     }
@@ -529,6 +654,7 @@ public enum DmgCommandLineParser {
       --volume-icon /path/icon.icns|png
       --volume-name "Mounted name"
       --output /path/App.dmg
+      --arrow-color auto|light|dark
       --app-x 0...1
       --applications-x 0...1
     """

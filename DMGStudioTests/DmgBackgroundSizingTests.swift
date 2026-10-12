@@ -50,6 +50,53 @@ final class DmgBackgroundSizingTests: XCTestCase {
         XCTAssertEqual(layout.arrowPosition, CGPoint(x: 400, y: 250))
     }
 
+    func testArtworkStyleHonorsAnExplicitDarkArrowColor() throws {
+        let layout = try DmgLayout(
+            appHorizontalPosition: 0.25,
+            applicationsHorizontalPosition: 0.75
+        ).finderLayout(canvasSize: CGSize(width: 800, height: 500))
+
+        let style = DmgArtworkStyle.resolve(
+            arrowColor: .dark,
+            layout: layout,
+            luminanceAt: { _ in 0.05 }
+        )
+
+        XCTAssertEqual(style.arrowColor, .dark)
+    }
+
+    func testArtworkStyleUsesALightArrowForDarkArtworkInAutomaticMode() throws {
+        let layout = try DmgLayout(
+            appHorizontalPosition: 0.25,
+            applicationsHorizontalPosition: 0.75
+        ).finderLayout(canvasSize: CGSize(width: 800, height: 500))
+
+        let style = DmgArtworkStyle.resolve(
+            arrowColor: .automatic,
+            layout: layout,
+            luminanceAt: { _ in 0.05 }
+        )
+
+        XCTAssertEqual(style.arrowColor, .light)
+    }
+
+    func testArtworkStyleAddsLabelBackdropsOnlyWhereFinderTextWouldBeUnreadable() throws {
+        let layout = try DmgLayout(
+            appHorizontalPosition: 0.25,
+            applicationsHorizontalPosition: 0.75
+        ).finderLayout(canvasSize: CGSize(width: 800, height: 500))
+
+        let style = DmgArtworkStyle.resolve(
+            arrowColor: .automatic,
+            layout: layout,
+            luminanceAt: { point in point.x < 400 ? 0.05 : 0.75 }
+        )
+
+        XCTAssertEqual(style.labelBackdrops.count, 1)
+        XCTAssertEqual(style.labelBackdrops[0].midX, 200)
+        XCTAssertGreaterThan(style.labelBackdrops[0].midY, layout.appPosition.y)
+    }
+
     func testValidatorAcceptsSquareLargePNGForVolumeIcon() throws {
         let fixture = try makeFixture()
         defer { fixture.cleanup() }
@@ -286,7 +333,7 @@ final class DmgBackgroundSizingTests: XCTestCase {
     func testCommandLineParserBuildsPlanWithCustomArtworkAndLayout() throws {
         let arguments = [
             "create", "--app", "/Games/Example.app", "--background", "/Art/background.jpg",
-            "--volume-icon", "/Art/icon.png", "--volume-name", "Example Disk", "--output", "/Output/Example.dmg",
+            "--volume-icon", "/Art/icon.png", "--volume-name", "Example Disk", "--output", "/Output/Example.dmg", "--arrow-color", "dark",
             "--app-x", "0.25", "--applications-x", "0.75"
         ]
 
@@ -297,8 +344,15 @@ final class DmgBackgroundSizingTests: XCTestCase {
         XCTAssertEqual(options.volumeIconURL?.path, "/Art/icon.png")
         XCTAssertEqual(options.volumeName, "Example Disk")
         XCTAssertEqual(options.outputURL?.path, "/Output/Example.dmg")
+        XCTAssertEqual(options.arrowColor, .dark)
         XCTAssertEqual(options.layout.appHorizontalPosition, 0.25)
         XCTAssertEqual(options.layout.applicationsHorizontalPosition, 0.75)
+    }
+
+    func testCommandLineParserDefaultsArrowColorToAutomatic() throws {
+        let options = try DmgCommandLineParser.parse(arguments: ["create", "--app", "/Games/Example.app"])
+
+        XCTAssertEqual(options.arrowColor, .automatic)
     }
 
     func testCommandLineOptionsDefaultOutputIsOutputDMGInCurrentDirectory() throws {
