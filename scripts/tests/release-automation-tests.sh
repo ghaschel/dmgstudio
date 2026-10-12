@@ -95,6 +95,7 @@ workflow_path="$repository_root/.github/workflows/release.yml"
 assert_file "$workflow_path"
 ruby -e 'require "yaml"; YAML.load_file(ARGV.fetch(0))' "$workflow_path"
 workflow="$(<"$workflow_path")"
+assert_contains "$workflow" 'runs-on: macos-26'
 assert_contains "$workflow" 'tags:'
 assert_contains "$workflow" '"v*"'
 assert_contains "$workflow" 'contents: write'
