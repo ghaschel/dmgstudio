@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: macos-14
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Build app and CLI
+        run: bash scripts/build.sh
+
+      - name: Package release assets
+        id: package
+        run: bash scripts/package-release.sh --tag "$GITHUB_REF_NAME" --dist-dir dist >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.package.outputs.version }}
+          PRERELEASE: ${{ steps.package.outputs.prerelease }}
+          DMG_PATH: ${{ steps.package.outputs.dmg_path }}
+          CLI_ARCHIVE_PATH: ${{ steps.package.outputs.cli_archive_path }}
+        run: |
+          set -euo pipefail
+          flags=(--verify-tag --generate-notes)
+          if [[ "$PRERELEASE" == "true" ]]; then
+            flags+=(--prerelease --latest=false)
+          fi
+
+          gh release create "$TAG" \
+            "$DMG_PATH#DMGStudio $VERSION" \
+            "$CLI_ARCHIVE_PATH#dmgstudio $VERSION CLI" \
+            --title "DMGStudio $VERSION" \
+            "${flags[@]}"
+
+      - name: Check out Homebrew tap
+        if: steps.package.outputs.prerelease == 'false'
+        uses: actions/checkout@v6
+        with:
+          repository: ghaschel/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Render Homebrew packages
+        if: steps.package.outputs.prerelease == 'false'
+        run: |
+          bash scripts/render-homebrew-tap.sh \
+            --tap-dir homebrew-tap \
+            --version "${{ steps.package.outputs.version }}" \
+            --dmg-sha256 "${{ steps.package.outputs.dmg_sha256 }}" \
+            --cli-sha256 "${{ steps.package.outputs.cli_sha256 }}"
+
+      - name: Commit Homebrew packages
+        if: steps.package.outputs.prerelease == 'false'
+        working-directory: homebrew-tap
+        env:
+          VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/dmgstudio.rb Casks/dmgstudio.rb
+          if git diff --cached --quiet; then
+            echo "Homebrew definitions already match $VERSION."
+            exit 0
+          fi
+          git commit -m "dmgstudio $VERSION"
+          git push

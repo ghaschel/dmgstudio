@@ -91,4 +91,24 @@ assert_contains "$cask" "DMGStudio-1.2.3.dmg"
 assert_contains "$cask" "$dmg_sha256"
 assert_contains "$cask" 'app "DMGStudio.app"'
 
+workflow_path="$repository_root/.github/workflows/release.yml"
+assert_file "$workflow_path"
+ruby -e 'require "yaml"; YAML.load_file(ARGV.fetch(0))' "$workflow_path"
+workflow="$(<"$workflow_path")"
+assert_contains "$workflow" 'tags:'
+assert_contains "$workflow" '"v*"'
+assert_contains "$workflow" 'contents: write'
+assert_contains "$workflow" 'bash scripts/build.sh'
+assert_contains "$workflow" 'bash scripts/package-release.sh'
+assert_contains "$workflow" 'gh release create'
+assert_contains "$workflow" '--verify-tag'
+assert_contains "$workflow" '--generate-notes'
+assert_contains "$workflow" 'PRERELEASE: ${{ steps.package.outputs.prerelease }}'
+assert_contains "$workflow" '"$PRERELEASE" == "true"'
+assert_contains "$workflow" '--prerelease'
+assert_contains "$workflow" '--latest=false'
+assert_contains "$workflow" "steps.package.outputs.prerelease == 'false'"
+assert_contains "$workflow" 'ghaschel/homebrew-tap'
+assert_contains "$workflow" 'secrets.HOMEBREW_TAP_TOKEN'
+
 echo "release automation helper tests passed"
