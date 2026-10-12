@@ -1,0 +1,13 @@
+cask "dmgstudio" do
+  version "{{VERSION}}"
+  sha256 "{{DMG_SHA256}}"
+
+  url "https://github.com/ghaschel/dmgstudio/releases/download/v{{VERSION}}/DMGStudio-{{VERSION}}.dmg"
+  name "DMGStudio"
+  desc "Create drag-to-install macOS disk images"
+  homepage "https://github.com/ghaschel/dmgstudio"
+
+  depends_on macos: ">= :ventura"
+
+  app "DMGStudio.app"
+end
